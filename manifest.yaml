@@ -1,0 +1,161 @@
+schema_version: "1"
+
+identity:
+  id: "@omadia/plugin-llm-ollama"
+  name: "Ollama (Local) LLM Provider"
+  version: "0.1.0"
+  # 'extension' = cross-cutting capability (valid manifest kind). The LLM provider
+  # itself is contributed declaratively via the `llm_provider` block below, which
+  # the omadia kernel registers regardless of kind.
+  kind: "extension"
+  domain: "llm.provider.ollama"
+  description: "Macht ein lokales Ollama (OpenAI-kompatible API) als admin-wählbaren LLM-Provider in omadia verfügbar — Modelle laufen auf eigener Hardware, kein Token verlässt die Maschine. Deklarativer Provider: wird aus diesem Manifest registriert, ohne Laufzeit-Provider-Code. Damit lässt sich ein vollständig lokaler omadia-Workflow (Orchestrator, Sub-Agents, Verifier) ohne externen Cloud-LLM testen und betreiben."
+  authors:
+    - name: "byte5 GmbH"
+      email: "info@omadia.ai"
+      url: "https://omadia.ai"
+  license: "MIT"
+  categories:
+    - "llm-provider"
+    - "infrastructure"
+    - "self-hosted"
+
+compat:
+  core: ">=1.0 <2.0"
+  node: ">=20"
+
+lifecycle:
+  entry: "dist/plugin.js"
+
+# Declarative LLM-provider contribution. The kernel reads this block at
+# manifest-load (before any plugin activates) and registers Ollama into the
+# LlmProviderCatalog + the dynamic model overlay. Ollama exposes the canonical
+# OpenAI-compatible Chat Completions wire format on /v1, so no runtime provider
+# code is needed — the built-in openai-compatible adapter drives it.
+#
+# Ollama runs locally and needs NO API key. The orchestrator tolerates an empty
+# `provider:ollama/api_key` vault entry (no Authorization header is sent), so the
+# Providers page key can be left blank. Set a key only if you front Ollama with a
+# gateway/proxy that requires bearer auth.
+llm_provider:
+  id: "ollama"
+  label: "Ollama (local)"
+  wire_format: "openai-compatible"
+  # Default for an Ollama daemon on the same host. When the middleware runs in a
+  # container, override via the setup field `ollama_base_url`, e.g.
+  # http://host.docker.internal:11434/v1  (Docker Desktop) or the host IP.
+  default_base_url: "http://localhost:11434/v1"
+  base_url_config_key: "ollama_base_url"
+  # Local / self-hosted: no API key needed (Ollama is unauthenticated) and no
+  # third-party processor is involved, so the orchestrator must publish its chat
+  # agent without a vault key and the admin UI must NOT show the AVV / Art. 28
+  # third-party-processing disclosure. (Requires omadia core that parses this
+  # `policy` block; older cores ignore it and fall back to the key-required +
+  # disclosure-shown defaults.)
+  policy:
+    requires_api_key: false
+    requires_avv_disclosure: false
+  # No quirks: Ollama's /v1 endpoint speaks the reference OpenAI Chat Completions
+  # shape — it accepts `max_tokens` (mapped to num_predict) and `tool_choice`.
+  #
+  # The model list below is a curated starting set of tool-capable, locally
+  # runnable models. They are NOT auto-pulled — run `ollama pull <model_id>` for
+  # each one you want to use (see README). You can extend this list with any
+  # model your Ollama serves by adding an `ollama:<name>` entry.
+  #
+  # ⚠ Ollama gotcha: a served model defaults to num_ctx=4096 regardless of the
+  # context_window advertised here. To actually use the larger window, start the
+  # daemon with `OLLAMA_CONTEXT_LENGTH=<n>` (or bake `num_ctx` into a Modelfile).
+  # The context_window values below reflect each model's native capability.
+  models:
+    # --- fast: small, laptop-friendly, tool-capable ---
+    - id: "ollama:llama3.2:3b"
+      model_id: "llama3.2:3b"
+      label: "Llama 3.2 3B (local)"
+      class: "fast"
+      max_tokens: 8192
+      context_window: 131072
+      vision: false
+      class_default: true
+    - id: "ollama:qwen3:4b"
+      model_id: "qwen3:4b"
+      label: "Qwen3 4B (local)"
+      class: "fast"
+      max_tokens: 8192
+      context_window: 32768
+      vision: false
+
+    # --- balanced: solid agentic default on prosumer hardware ---
+    - id: "ollama:llama3.1:8b"
+      model_id: "llama3.1:8b"
+      label: "Llama 3.1 8B (local)"
+      class: "balanced"
+      max_tokens: 8192
+      context_window: 131072
+      vision: false
+      class_default: true
+    - id: "ollama:qwen3:8b"
+      model_id: "qwen3:8b"
+      label: "Qwen3 8B (local)"
+      class: "balanced"
+      max_tokens: 8192
+      context_window: 32768
+      vision: false
+
+    # --- frontier: best local quality, needs more RAM/VRAM ---
+    - id: "ollama:gpt-oss:20b"
+      model_id: "gpt-oss:20b"
+      label: "GPT-OSS 20B (local)"
+      class: "frontier"
+      max_tokens: 32768
+      context_window: 131072
+      vision: false
+      class_default: true
+    - id: "ollama:llama3.3:70b"
+      model_id: "llama3.3:70b"
+      label: "Llama 3.3 70B (local)"
+      class: "frontier"
+      max_tokens: 16384
+      context_window: 131072
+      vision: false
+
+setup:
+  fields:
+    - key: "ollama_base_url"
+      type: "url"
+      label: "Ollama Base-URL"
+      help: "Standard: http://localhost:11434/v1 — im Container z.B. http://host.docker.internal:11434/v1 oder die Host-IP."
+      required: false
+      default: "http://localhost:11434/v1"
+
+playbook:
+  when_to_use: |
+    Installiere diesen Provider, um omadia vollständig lokal zu betreiben oder zu
+    testen: kein Token verlässt die eigene Hardware. Voraussetzung ist ein
+    laufender Ollama-Daemon (https://ollama.com) und mindestens ein gepulltes
+    Modell (`ollama pull llama3.1:8b`). Nach der Installation den Provider auf der
+    Admin-Providers-Seite dem gewünschten Plugin (z.B. Orchestrator, Sub-Agents,
+    Verifier) zuweisen — der API-Key bleibt leer. Ideal für datenschutzkritische
+    Szenarien (alles on-prem) und für End-to-End-Tests ohne Cloud-Kosten.
+
+permissions:
+  memory:
+    reads: []
+    writes: []
+  graph:
+    reads: []
+    writes: []
+  network:
+    outbound:
+      # Local Ollama daemon. When pointed at a remote/containerized Ollama via
+      # `ollama_base_url`, add that host here too.
+      - "localhost"
+      - "127.0.0.1"
+      - "host.docker.internal"
+      # Docker-compose service DNS name: when omadia's middleware and Ollama run
+      # in the same compose stack, the daemon is reached at http://ollama:11434.
+      - "ollama"
+  filesystem:
+    scratch: false
+
+integrations: []
