@@ -37,7 +37,7 @@ Agents ask for a class (`fast`, `balanced`, `frontier`). omadia maps the class t
 
 ## How it works in omadia
 
-A declarative provider plugin. The manifest declares `policy.requires_api_key: false`, so on an omadia core that supports keyless providers the orchestrator publishes its chat agent without a vault key, and the admin UI drops the third-party-processing note, because a local model is not a third-party processor. On older cores, leave any non-empty placeholder in the key field, since Ollama ignores the `Authorization` header.
+A model plugin (kind `model`); only the kernel's model gateway calls it. It is a declarative provider plugin. The manifest declares `policy.requires_api_key: false`, so on an omadia core that supports keyless providers the orchestrator publishes its chat agent without a vault key, and the admin UI drops the third-party-processing note, because a local model is not a third-party processor. On older cores, leave any non-empty placeholder in the key field, since Ollama ignores the `Authorization` header.
 
 Ollama serves an OpenAI-compatible wire format under `/v1`, so omadia drives it through its built-in OpenAI-compatible adapter.
 

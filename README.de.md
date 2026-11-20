@@ -37,7 +37,7 @@ Agenten fragen eine Klasse an (`fast`, `balanced`, `frontier`). omadia bildet di
 
 ## So funktioniert es in omadia
 
-Ein deklaratives Provider-Plugin. Das Manifest deklariert `policy.requires_api_key: false`, also veröffentlicht der Orchestrator auf einem omadia-Core, der schlüssellose Provider unterstützt, seinen Chat-Agenten ohne Vault-Key, und die Admin-UI blendet den Hinweis zur Drittanbieter-Verarbeitung aus, denn ein lokales Modell ist kein Drittanbieter-Verarbeiter. Auf älteren Cores trägst du einen beliebigen, nicht-leeren Platzhalter ins Key-Feld ein, da Ollama den `Authorization`-Header ignoriert.
+Ein Modell-Plugin (Kind `model`); nur das Modell-Gateway des Kernels ruft es auf. Es ist ein deklaratives Provider-Plugin. Das Manifest deklariert `policy.requires_api_key: false`, also veröffentlicht der Orchestrator auf einem omadia-Core, der schlüssellose Provider unterstützt, seinen Chat-Agenten ohne Vault-Key, und die Admin-UI blendet den Hinweis zur Drittanbieter-Verarbeitung aus, denn ein lokales Modell ist kein Drittanbieter-Verarbeiter. Auf älteren Cores trägst du einen beliebigen, nicht-leeren Platzhalter ins Key-Feld ein, da Ollama den `Authorization`-Header ignoriert.
 
 Ollama liefert ein OpenAI-kompatibles Wire-Format unter `/v1`, also fährt omadia es über den eingebauten OpenAI-kompatiblen Adapter.
 
