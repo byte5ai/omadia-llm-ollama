@@ -146,15 +146,17 @@ permissions:
     writes: []
   network:
     outbound:
-      # Local Ollama daemon (literal hosts: the kernel reads them as model endpoints).
-      # A remote/containerized Ollama behind `ollama_base_url` needs its host added
-      # here; `$config.ollama_base_url` would not match, it resolves to the full URL, not a hostname.
+      # Local Ollama daemon (literal hosts; local/private hosts are not model endpoints
+      # for the kernel). A remote Ollama behind `ollama_base_url` is covered by the
+      # `$config` reference below.
       - "localhost"
       - "127.0.0.1"
       - "host.docker.internal"
       # Docker-compose service DNS name: when omadia's middleware and Ollama run
       # in the same compose stack, the daemon is reached at http://ollama:11434.
       - "ollama"
+      # Operator-configured base URL (proxy/gateway/remote); the kernel allows its host.
+      - "$config.ollama_base_url"
   filesystem:
     scratch: false
 
