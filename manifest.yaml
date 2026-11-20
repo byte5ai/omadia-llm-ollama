@@ -3,11 +3,10 @@ schema_version: "1"
 identity:
   id: "@omadia/plugin-llm-ollama"
   name: "Ollama (Local) LLM Provider"
-  version: "0.1.0"
-  # 'extension' = cross-cutting capability (valid manifest kind). The LLM provider
-  # itself is contributed declaratively via the `llm_provider` block below, which
-  # the omadia kernel registers regardless of kind.
-  kind: "extension"
+  version: "0.2.0"
+  # Model plugin (kind `model`): only the kernel's model gateway calls it. The provider
+  # is contributed declaratively via the `llm_provider` block below.
+  kind: "model"
   domain: "llm.provider.ollama"
   description: "Macht ein lokales Ollama (OpenAI-kompatible API) als admin-wählbaren LLM-Provider in omadia verfügbar — Modelle laufen auf eigener Hardware, kein Token verlässt die Maschine. Deklarativer Provider: wird aus diesem Manifest registriert, ohne Laufzeit-Provider-Code. Damit lässt sich ein vollständig lokaler omadia-Workflow (Orchestrator, Sub-Agents, Verifier) ohne externen Cloud-LLM testen und betreiben."
   authors:
@@ -21,7 +20,7 @@ identity:
     - "self-hosted"
 
 compat:
-  core: ">=1.0 <2.0"
+  core: ">=1.78.0 <2.0"
   node: ">=20"
 
 lifecycle:
@@ -147,14 +146,17 @@ permissions:
     writes: []
   network:
     outbound:
-      # Local Ollama daemon. When pointed at a remote/containerized Ollama via
-      # `ollama_base_url`, add that host here too.
+      # Local Ollama daemon (literal hosts; local/private hosts are not model endpoints
+      # for the kernel). A remote Ollama behind `ollama_base_url` is covered by the
+      # `$config` reference below.
       - "localhost"
       - "127.0.0.1"
       - "host.docker.internal"
       # Docker-compose service DNS name: when omadia's middleware and Ollama run
       # in the same compose stack, the daemon is reached at http://ollama:11434.
       - "ollama"
+      # Operator-configured base URL (proxy/gateway/remote); the kernel allows its host.
+      - "$config.ollama_base_url"
   filesystem:
     scratch: false
 
