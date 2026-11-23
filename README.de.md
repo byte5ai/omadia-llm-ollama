@@ -4,7 +4,7 @@
 
 ### Betreibe dein ganzes omadia-Team lokal auf Ollama, ohne API-Key und ohne dass Daten die Maschine verlassen.
 
-Der lokale, schlüssellose LLM-Provider für omadia. Modelle laufen auf der eigenen Hardware und kein Prompt-Token verlässt die Maschine, das ist die Basis für einen vollständig lokalen omadia-Workflow: Orchestrator, Sub-Agenten und Verifier alle auf lokalen Modellen.
+Der lokale, schlüssellose LLM-Provider für omadia. Modelle laufen auf der eigenen Hardware und kein Prompt-Token verlässt die Maschine, das ist die Basis für einen vollständig lokalen omadia-Workflow: Agenten, interne Helfer und Verifier alle auf lokalen Modellen.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-black.svg)](LICENSE)
 [![Built for omadia](https://img.shields.io/badge/built%20for-omadia-2496ED.svg)](https://github.com/byte5ai/omadia)
@@ -37,7 +37,7 @@ Agenten fragen eine Klasse an (`fast`, `balanced`, `frontier`). omadia bildet di
 
 ## So funktioniert es in omadia
 
-Ein Modell-Plugin (Kind `model`); nur das Modell-Gateway des Kernels ruft es auf. Es ist ein deklaratives Provider-Plugin. Das Manifest deklariert `policy.requires_api_key: false`, also veröffentlicht der Orchestrator auf einem omadia-Core, der schlüssellose Provider unterstützt, seinen Chat-Agenten ohne Vault-Key, und die Admin-UI blendet den Hinweis zur Drittanbieter-Verarbeitung aus, denn ein lokales Modell ist kein Drittanbieter-Verarbeiter. Auf älteren Cores trägst du einen beliebigen, nicht-leeren Platzhalter ins Key-Feld ein, da Ollama den `Authorization`-Header ignoriert.
+Ein Modell-Plugin (Kind `model`); nur das Modell-Gateway des Kernels ruft es auf. Es ist ein deklaratives Provider-Plugin. Das Manifest deklariert `policy.requires_api_key: false`, also veröffentlicht die Agent-Runtime auf einem omadia-Core, der schlüssellose Provider unterstützt, seinen Chat-Agenten ohne Vault-Key, und die Admin-UI blendet den Hinweis zur Drittanbieter-Verarbeitung aus, denn ein lokales Modell ist kein Drittanbieter-Verarbeiter. Auf älteren Cores trägst du einen beliebigen, nicht-leeren Platzhalter ins Key-Feld ein, da Ollama den `Authorization`-Header ignoriert.
 
 Ollama liefert ein OpenAI-kompatibles Wire-Format unter `/v1`, also fährt omadia es über den eingebauten OpenAI-kompatiblen Adapter.
 
@@ -48,11 +48,11 @@ Ollama liefert ein OpenAI-kompatibles Wire-Format unter `/v1`, also fährt omadi
 
 ## Installation
 
-Für diesen Provider gibt es keinen API-Key. Du füllst nur die Setup-Felder unten aus. Weise dem Orchestrator zuerst einen LLM-Provider zu, danach können der Channel und weitere Agenten ihn nutzen.
+Für diesen Provider gibt es keinen API-Key. Du füllst nur die Setup-Felder unten aus. Weise zuerst einem Agenten ein Modell zu, danach können der Channel und weitere Agenten ihn nutzen.
 
 1. Installiere über den [Plugin-Hub](https://hub.omadia.ai) in der omadia-Admin-UI (Store, Upload), oder lade das gebaute ZIP direkt hoch.
 2. Lasse auf der Admin-Providers-Seite das API-Key-Feld leer oder setze einen Platzhalter.
-3. Weise Ollama und ein Modell einem Agenten zu: dem Orchestrator, einem Sub-Agenten oder dem Verifier.
+3. Weise Ollama und ein Modell einem Agenten zu: einem Agenten, einem internen Helfer oder dem Verifier.
 
 ## Konfiguration
 
