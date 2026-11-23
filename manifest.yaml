@@ -3,12 +3,12 @@ schema_version: "1"
 identity:
   id: "@omadia/plugin-llm-ollama"
   name: "Ollama (Local) LLM Provider"
-  version: "0.2.0"
+  version: "0.2.1"
   # Model plugin (kind `model`): only the kernel's model gateway calls it. The provider
   # is contributed declaratively via the `llm_provider` block below.
   kind: "model"
   domain: "llm.provider.ollama"
-  description: "Macht ein lokales Ollama (OpenAI-kompatible API) als admin-wählbaren LLM-Provider in omadia verfügbar — Modelle laufen auf eigener Hardware, kein Token verlässt die Maschine. Deklarativer Provider: wird aus diesem Manifest registriert, ohne Laufzeit-Provider-Code. Damit lässt sich ein vollständig lokaler omadia-Workflow (Orchestrator, Sub-Agents, Verifier) ohne externen Cloud-LLM testen und betreiben."
+  description: "Macht ein lokales Ollama (OpenAI-kompatible API) als admin-wählbaren LLM-Provider in omadia verfügbar — Modelle laufen auf eigener Hardware, kein Token verlässt die Maschine. Deklarativer Provider: wird aus diesem Manifest registriert, ohne Laufzeit-Provider-Code. Damit lässt sich ein vollständig lokaler omadia-Workflow (Agenten, interne Helfer, Verifier) ohne externen Cloud-LLM testen und betreiben."
   authors:
     - name: "byte5 GmbH"
       email: "info@omadia.ai"
@@ -133,7 +133,7 @@ playbook:
     testen: kein Token verlässt die eigene Hardware. Voraussetzung ist ein
     laufender Ollama-Daemon (https://ollama.com) und mindestens ein gepulltes
     Modell (`ollama pull llama3.1:8b`). Nach der Installation den Provider auf der
-    Admin-Providers-Seite dem gewünschten Plugin (z.B. Orchestrator, Sub-Agents,
+    Admin-Providers-Seite dem gewünschten Zweck (z.B. Agenten, interne Helfer,
     Verifier) zuweisen — der API-Key bleibt leer. Ideal für datenschutzkritische
     Szenarien (alles on-prem) und für End-to-End-Tests ohne Cloud-Kosten.
 
